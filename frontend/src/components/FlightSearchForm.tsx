@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input } from '@/components';
-import { FiPlane, FiCalendar, FiUsers } from 'react-icons/fi';
+import { FiNavigation, FiCalendar, FiUsers } from 'react-icons/fi';
 
 interface FlightSearchFormProps {
   onSearch: (data: any) => void;
@@ -74,7 +74,7 @@ export default function FlightSearchForm({ onSearch, isLoading = false }: Flight
           <Input
             label='From'
             placeholder='Departure city'
-            icon={<FiPlane className='w-5 h-5' />}
+            icon={<FiNavigation className='w-5 h-5' />}
             error={errors.departure?.message}
             {...register('departure', { required: 'Departure city is required' })}
           />
@@ -83,7 +83,7 @@ export default function FlightSearchForm({ onSearch, isLoading = false }: Flight
           <Input
             label='To'
             placeholder='Arrival city'
-            icon={<FiPlane className='w-5 h-5' />}
+            icon={<FiNavigation className='w-5 h-5' />}
             error={errors.arrival?.message}
             {...register('arrival', { required: 'Arrival city is required' })}
           />

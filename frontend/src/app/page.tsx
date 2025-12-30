@@ -2,9 +2,10 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { Layout, Button } from '@/components';
+import Layout from '@/components/Layout';
+import Button from '@/components/Button';
 import { useAuthStore } from '@/store/authStore';
-import { FiPlane, FiHome, FiMapPin, FiTrendingUp } from 'react-icons/fi';
+import { FiNavigation, FiHome, FiMapPin, FiTrendingUp } from 'react-icons/fi';
 
 export default function Home() {
   const { loadUserFromStorage } = useAuthStore();
@@ -47,7 +48,7 @@ export default function Home() {
             {/* Feature 1 */}
             <div className='bg-white p-6 rounded-lg shadow-card hover:shadow-card-hover transition'>
               <div className='w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4'>
-                <FiPlane className='w-6 h-6 text-primary-500' />
+                <FiNavigation className='w-6 h-6 text-primary-500' />
               </div>
               <h3 className='text-lg font-semibold mb-2'>Best Flight Deals</h3>
               <p className='text-gray-600'>

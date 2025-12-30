@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Flight } from '@/types';
 import { Button, Card } from '@/components';
-import { FiClock, FiMapPin, FiAirplane } from 'react-icons/fi';
+import { FiClock, FiMapPin, FiNavigation } from 'react-icons/fi';
 
 interface FlightCardProps {
   flight: Flight;
@@ -66,7 +66,7 @@ export default function FlightCard({ flight, onSelect }: FlightCardProps) {
             <div className='text-center'>
               <div className='flex items-center justify-center gap-2 mb-2'>
                 <div className='flex-1 h-px bg-gray-300' />
-                <FiAirplane className='w-4 h-4 text-gray-400 rotate-90' />
+                <FiNavigation className='w-4 h-4 text-gray-400 rotate-90' />
                 <div className='flex-1 h-px bg-gray-300' />
               </div>
               <p className='text-xs text-gray-600'>

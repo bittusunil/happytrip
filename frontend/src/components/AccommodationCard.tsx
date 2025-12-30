@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Accommodation } from '@/types';
 import { Button, Card } from '@/components';
-import { FiStar, FiMapPin, FiWifi, FiCoffee, FiSwimmer } from 'react-icons/fi';
+import { FiStar, FiMapPin, FiWifi, FiCoffee, FiDroplet } from 'react-icons/fi';
 
 interface AccommodationCardProps {
   accommodation: Accommodation;
@@ -33,7 +33,7 @@ export default function AccommodationCard({
   const amenityIcons: Record<string, React.ReactNode> = {
     wifi: <FiWifi className='w-4 h-4' />,
     coffee: <FiCoffee className='w-4 h-4' />,
-    pool: <FiSwimmer className='w-4 h-4' />,
+    pool: <FiDroplet className='w-4 h-4' />,
   };
 
   return (
