@@ -16,6 +16,8 @@ const CURRENCIES = [
   { code: 'PLN', name: 'Polish Zloty', symbol: 'zł' },
   { code: 'HUF', name: 'Hungarian Forint', symbol: 'Ft' },
   { code: 'RON', name: 'Romanian Leu', symbol: 'lei' },
+  { code: 'SAR', name: 'Saudi Riyal', symbol: 'ر.س' },
+  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
 ];
 
 interface CurrencySwitcherProps {

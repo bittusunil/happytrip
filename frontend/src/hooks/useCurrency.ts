@@ -105,7 +105,7 @@ export const useCurrency = () => {
   }, [currency]);
 
   const getSupportedCurrencies = useCallback((): string[] => {
-    return ['EUR', 'GBP', 'USD', 'CHF', 'SEK', 'NOK', 'DKK', 'CZK', 'PLN', 'HUF', 'RON'];
+    return ['EUR', 'GBP', 'USD', 'CHF', 'SEK', 'NOK', 'DKK', 'CZK', 'PLN', 'HUF', 'RON', 'SAR', 'INR'];
   }, []);
 
   const getFallbackRates = (): ExchangeRates => {
@@ -120,6 +120,8 @@ export const useCurrency = () => {
       'EUR/PLN': 4.3,
       'EUR/HUF': 360,
       'EUR/RON': 4.97,
+      'EUR/SAR': 4.15,
+      'EUR/INR': 92.5,
     };
   };
 

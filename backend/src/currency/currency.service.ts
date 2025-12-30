@@ -19,7 +19,7 @@ export class CurrencyService {
   }
 
   private initializeExchangeRates() {
-    // Mock exchange rates for EMEA currencies (relative to EUR)
+    // Mock exchange rates for global currencies (relative to EUR)
     const rates = {
       'EUR/EUR': 1.0,
       'EUR/GBP': 0.86,
@@ -32,6 +32,8 @@ export class CurrencyService {
       'EUR/PLN': 4.3,
       'EUR/HUF': 360,
       'EUR/RON': 4.97,
+      'EUR/SAR': 4.15,
+      'EUR/INR': 92.5,
     };
 
     Object.entries(rates).forEach(([pair, rate]) => {
@@ -166,6 +168,8 @@ export class CurrencyService {
       PLN: 'zł',
       HUF: 'Ft',
       RON: 'lei',
+      SAR: '﷼',
+      INR: '₹',
     };
 
     return symbols[currency] || currency;
