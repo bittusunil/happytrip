@@ -1,5 +1,6 @@
 import React from 'react';
-import clsx from 'clsx';
+import { Card as ShadcnCard } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -16,18 +17,18 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     };
 
     return (
-      <div
+      <ShadcnCard
         ref={ref}
-        className={clsx(
-          'bg-white rounded-lg border border-gray-200 transition-all duration-200',
-          hoverable && 'hover:shadow-lg hover:border-gray-300 cursor-pointer',
+        className={cn(
+          'transition-all duration-200',
+          hoverable && 'hover:shadow-lg hover:border-primary/50 cursor-pointer',
           paddingStyles[padding],
           className,
         )}
         {...props}
       >
         {children}
-      </div>
+      </ShadcnCard>
     );
   },
 );
