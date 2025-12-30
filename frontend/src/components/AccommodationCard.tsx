@@ -49,8 +49,12 @@ export default function AccommodationCard({
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200'>
-              <span className='text-4xl'>{getTypeIcon(accommodation.type)}</span>
+            <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 relative'>
+              <img
+                src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop'
+                alt={accommodation.name}
+                className='w-full h-full object-cover'
+              />
             </div>
           )}
         </div>

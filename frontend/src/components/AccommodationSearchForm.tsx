@@ -15,6 +15,7 @@ interface SearchFormData {
   checkInDate: string;
   checkOutDate: string;
   guests: number;
+  rooms: number;
 }
 
 export default function AccommodationSearchForm({
@@ -27,6 +28,7 @@ export default function AccommodationSearchForm({
       checkInDate: '',
       checkOutDate: '',
       guests: 1,
+      rooms: 1,
     },
   });
 
@@ -76,22 +78,44 @@ export default function AccommodationSearchForm({
             })}
           />
 
-          {/* Guests */}
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
-              <FiUsers className='w-4 h-4 inline mr-2' />
-              Guests
-            </label>
-            <select
-              {...register('guests')}
-              className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500'
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                <option key={num} value={num}>
-                  {num} {num === 1 ? 'Guest' : 'Guests'}
-                </option>
-              ))}
-            </select>
+          {/* Rooms & Guests */}
+          <div className='md:col-span-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              {/* Rooms */}
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  Rooms
+                </label>
+                <select
+                  {...register('rooms', { valueAsNumber: true })}
+                  className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500'
+                >
+                  {[1, 2, 3, 4, 5, 6].map((num) => (
+                    <option key={num} value={num}>
+                      {num} {num === 1 ? 'Room' : 'Rooms'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Guests */}
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  <FiUsers className='w-4 h-4 inline mr-2' />
+                  Guests
+                </label>
+                <select
+                  {...register('guests', { valueAsNumber: true })}
+                  className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500'
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                    <option key={num} value={num}>
+                      {num} {num === 1 ? 'Guest' : 'Guests'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -16,6 +16,8 @@ interface SearchFormData {
   departureDate: string;
   returnDate?: string;
   passengers: number;
+  children: number;
+  infants: number;
   tripType: 'roundtrip' | 'oneway';
 }
 
@@ -28,6 +30,8 @@ export default function FlightSearchForm({ onSearch, isLoading = false }: Flight
       departureDate: '',
       returnDate: '',
       passengers: 1,
+      children: 0,
+      infants: 0,
       tripType: 'roundtrip',
     },
   });
@@ -119,21 +123,57 @@ export default function FlightSearchForm({ onSearch, isLoading = false }: Flight
           )}
 
           {/* Passengers */}
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+          <div className='md:col-span-5'>
+            <label className='block text-sm font-medium text-gray-700 mb-3'>
               <FiUsers className='w-4 h-4 inline mr-2' />
-              Passengers
+              Travelers
             </label>
-            <select
-              {...register('passengers')}
-              className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500'
-            >
-              {[1, 2, 3, 4, 5, 6].map((num) => (
+            <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+              {/* Adults */}
+              <div>
+                <label className='block text-xs text-gray-600 mb-1.5'>Adults (12+)</label>
+                <select
+                  {...register('passengers', { valueAsNumber: true })}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm'
+                >
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                 <option key={num} value={num}>
-                  {num} {num === 1 ? 'Passenger' : 'Passengers'}
+                  {num} {num === 1 ? 'Adult' : 'Adults'}
                 </option>
               ))}
             </select>
+              </div>
+
+              {/* Children */}
+              <div>
+                <label className='block text-xs text-gray-600 mb-1.5'>Children (2-11)</label>
+                <select
+                  {...register('children', { valueAsNumber: true })}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm'
+                >
+              {[0, 1, 2, 3, 4, 5, 6].map((num) => (
+                <option key={num} value={num}>
+                  {num} {num === 1 ? 'Child' : num === 0 ? 'No children' : 'Children'}
+                </option>
+              ))}
+            </select>
+              </div>
+
+              {/* Infants */}
+              <div>
+                <label className='block text-xs text-gray-600 mb-1.5'>Infants (under 2)</label>
+                <select
+                  {...register('infants', { valueAsNumber: true })}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm'
+                >
+              {[0, 1, 2, 3, 4].map((num) => (
+                <option key={num} value={num}>
+                  {num} {num === 1 ? 'Infant' : num === 0 ? 'No infants' : 'Infants'}
+                </option>
+              ))}
+            </select>
+              </div>
+            </div>
           </div>
         </div>
 

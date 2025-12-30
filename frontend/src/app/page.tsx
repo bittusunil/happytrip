@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Layout from '@/components/Layout';
 import Button from '@/components/Button';
 import { useAuthStore } from '@/store/authStore';
@@ -122,22 +123,52 @@ export default function Home() {
           </div>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {[
-              { name: 'Paris', image: '🗼', color: 'from-blue-400 to-blue-600' },
-              { name: 'Barcelona', image: '🏖️', color: 'from-yellow-400 to-orange-500' },
-              { name: 'Rome', image: '🏛️', color: 'from-orange-400 to-red-500' },
-              { name: 'Amsterdam', image: '🚲', color: 'from-green-400 to-emerald-600' },
-              { name: 'Berlin', image: '🏰', color: 'from-gray-400 to-gray-600' },
-              { name: 'London', image: '🇬🇧', color: 'from-red-400 to-pink-500' },
+              { 
+                name: 'Paris', 
+                image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&h=600&fit=crop',
+                alt: 'Eiffel Tower in Paris'
+              },
+              { 
+                name: 'Barcelona', 
+                image: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&h=600&fit=crop',
+                alt: 'Sagrada Familia in Barcelona'
+              },
+              { 
+                name: 'Rome', 
+                image: 'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=800&h=600&fit=crop',
+                alt: 'Colosseum in Rome'
+              },
+              { 
+                name: 'Amsterdam', 
+                image: 'https://images.unsplash.com/photo-1534351590666-13e3c96a081b?w=800&h=600&fit=crop',
+                alt: 'Canals of Amsterdam'
+              },
+              { 
+                name: 'Berlin', 
+                image: 'https://images.unsplash.com/photo-1587330979470-3595ac045ab0?w=800&h=600&fit=crop',
+                alt: 'Brandenburg Gate in Berlin'
+              },
+              { 
+                name: 'London', 
+                image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&h=600&fit=crop',
+                alt: 'Big Ben and London Eye'
+              },
             ].map((destination) => (
               <Link key={destination.name} href={`/accommodations?city=${destination.name}`}>
                 <div className='group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-primary-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer'>
-                  <div className={`h-56 bg-gradient-to-br ${destination.color} flex items-center justify-center text-7xl group-hover:scale-110 transition-transform duration-300 relative overflow-hidden`}>
-                    <div className='absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors duration-300' />
-                    <span className='relative z-10'>{destination.image}</span>
-                  </div>
-                  <div className='p-6'>
-                    <h3 className='text-xl font-bold text-gray-900 mb-1'>{destination.name}</h3>
-                    <p className='text-sm text-gray-600'>Explore amazing places</p>
+                  <div className='relative h-56 overflow-hidden'>
+                    <Image
+                      src={destination.image}
+                      alt={destination.alt}
+                      fill
+                      className='object-cover group-hover:scale-110 transition-transform duration-300'
+                      sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                    />
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/50 transition-colors duration-300' />
+                    <div className='absolute bottom-0 left-0 right-0 p-6'>
+                      <h3 className='text-xl font-bold text-white mb-1'>{destination.name}</h3>
+                      <p className='text-sm text-white/90'>Explore amazing places</p>
+                    </div>
                   </div>
                 </div>
               </Link>
