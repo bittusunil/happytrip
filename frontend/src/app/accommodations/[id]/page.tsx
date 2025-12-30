@@ -33,6 +33,7 @@ export default function AccommodationDetailsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedRoomTypeIndex, setSelectedRoomTypeIndex] = useState<number | null>(null);
   const [bookingDates, setBookingDates] = useState({
     checkIn: '',
     checkOut: '',
@@ -100,6 +101,17 @@ export default function AccommodationDetailsPage() {
     }
   };
 
+  const getSelectedRoomPrice = () => {
+    if (!accommodation) return accommodation?.pricing.basePrice || 0;
+    
+    if (selectedRoomTypeIndex !== null && accommodation.rooms?.types?.[selectedRoomTypeIndex]) {
+      const roomType = accommodation.rooms.types[selectedRoomTypeIndex];
+      return roomType.basePrice > 0 ? roomType.basePrice : accommodation.pricing.basePrice;
+    }
+    
+    return accommodation.pricing.basePrice;
+  };
+
   const handleBookNow = () => {
     if (!accommodation) return;
 
@@ -113,11 +125,12 @@ export default function AccommodationDetailsPage() {
       return;
     }
 
-    // Calculate total price
+    // Calculate total price using selected room type price
     const checkIn = new Date(bookingDates.checkIn);
     const checkOut = new Date(bookingDates.checkOut);
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
-    const totalPrice = accommodation.pricing.basePrice * nights * bookingDates.rooms;
+    const roomPrice = getSelectedRoomPrice();
+    const totalPrice = roomPrice * nights * bookingDates.rooms;
 
     // Navigate to booking form with pre-filled data
     router.push(
@@ -275,23 +288,76 @@ export default function AccommodationDetailsPage() {
             <Card>
               <h2 className='text-2xl font-bold text-gray-900 mb-6'>Room Types & Pricing</h2>
               <div className='space-y-4'>
-                {accommodation.rooms.types.map((roomType, index) => (
-                  <div
-                    key={index}
-                    className='flex items-center justify-between p-4 border border-gray-200 rounded-lg'
-                  >
-                    <div>
-                      <h3 className='font-semibold text-gray-900'>{roomType.type}</h3>
-                      <p className='text-sm text-gray-600'>{roomType.count} rooms available</p>
-                    </div>
-                    <div className='text-right'>
-                      <p className='text-xl font-bold text-primary-600'>
-                        {roomType.basePrice.toFixed(2)} {accommodation.pricing.currency}
-                      </p>
-                      <p className='text-xs text-gray-600'>per night</p>
+                {accommodation.rooms?.types && accommodation.rooms.types.length > 0 ? (
+                  accommodation.rooms.types.map((roomType, index) => {
+                    // Use accommodation basePrice if room type basePrice is 0 or not set
+                    const displayPrice = roomType.basePrice > 0 ? roomType.basePrice : accommodation.pricing.basePrice;
+                    const isIncluded = roomType.basePrice === 0;
+                    const isSelected = selectedRoomTypeIndex === index;
+                    
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setSelectedRoomTypeIndex(index);
+                          // Update rooms count based on selected room type availability
+                          if (roomType.count && roomType.count < bookingDates.rooms) {
+                            setBookingDates({ ...bookingDates, rooms: Math.min(roomType.count, 4) });
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between p-4 border-2 rounded-lg transition-all text-left ${
+                          isSelected
+                            ? 'border-primary-500 bg-primary-50'
+                            : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div>
+                          <h3 className='font-semibold text-gray-900'>{roomType.type || 'Standard Room'}</h3>
+                          <p className='text-sm text-gray-600'>
+                            {roomType.count || accommodation.rooms?.total || 1} {(roomType.count || accommodation.rooms?.total || 1) === 1 ? 'room' : 'rooms'} available
+                          </p>
+                        </div>
+                        <div className='text-right'>
+                          {isIncluded ? (
+                            <>
+                              <p className='text-xl font-bold text-primary-600'>
+                                {accommodation.pricing.basePrice.toFixed(2)} {accommodation.pricing.currency}
+                              </p>
+                              <p className='text-xs text-gray-600'>per night (included)</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className='text-xl font-bold text-primary-600'>
+                                {displayPrice.toFixed(2)} {accommodation.pricing.currency}
+                              </p>
+                              <p className='text-xs text-gray-600'>per night</p>
+                            </>
+                          )}
+                          {isSelected && (
+                            <p className='text-xs text-primary-600 mt-1 font-medium'>Selected</p>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className='p-4 border border-gray-200 rounded-lg'>
+                    <div className='flex items-center justify-between'>
+                      <div>
+                        <h3 className='font-semibold text-gray-900'>Standard Rate</h3>
+                        <p className='text-sm text-gray-600'>
+                          {accommodation.rooms?.total || 'N/A'} {accommodation.rooms?.total === 1 ? 'room' : 'rooms'} available
+                        </p>
+                      </div>
+                      <div className='text-right'>
+                        <p className='text-xl font-bold text-primary-600'>
+                          {accommodation.pricing.basePrice.toFixed(2)} {accommodation.pricing.currency}
+                        </p>
+                        <p className='text-xs text-gray-600'>per night</p>
+                      </div>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </Card>
 
@@ -421,12 +487,17 @@ export default function AccommodationDetailsPage() {
                 <div className='mb-6'>
                   <div className='flex items-baseline gap-2 mb-4'>
                     <span className='text-3xl font-bold text-gray-900'>
-                      {accommodation.pricing.basePrice.toFixed(2)}
+                      {getSelectedRoomPrice().toFixed(2)}
                     </span>
                     <span className='text-gray-600'>
                       {accommodation.pricing.currency} / night
                     </span>
                   </div>
+                  {selectedRoomTypeIndex !== null && accommodation.rooms?.types?.[selectedRoomTypeIndex] && (
+                    <p className='text-sm text-primary-600 mb-2'>
+                      {accommodation.rooms.types[selectedRoomTypeIndex].type} selected
+                    </p>
+                  )}
                   <div className='flex items-center gap-2 text-sm text-gray-600 mb-6'>
                     <FiStar className='w-4 h-4 fill-yellow-400 text-yellow-400' />
                     <span className='font-semibold text-gray-900'>
@@ -479,14 +550,14 @@ export default function AccommodationDetailsPage() {
                         Guests
                       </label>
                       <select
-                        value={bookingDates.guests}
+                        value={String(bookingDates.guests)}
                         onChange={(e) =>
-                          setBookingDates({ ...bookingDates, guests: parseInt(e.target.value) })
+                          setBookingDates({ ...bookingDates, guests: parseInt(e.target.value, 10) })
                         }
                         className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500'
                       >
                         {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                          <option key={num} value={num}>
+                          <option key={num} value={String(num)}>
                             {num} {num === 1 ? 'Guest' : 'Guests'}
                           </option>
                         ))}
@@ -495,17 +566,24 @@ export default function AccommodationDetailsPage() {
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-2'>Rooms</label>
                       <select
-                        value={bookingDates.rooms}
+                        value={String(bookingDates.rooms)}
                         onChange={(e) =>
-                          setBookingDates({ ...bookingDates, rooms: parseInt(e.target.value) })
+                          setBookingDates({ ...bookingDates, rooms: parseInt(e.target.value, 10) })
                         }
                         className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500'
                       >
-                        {[1, 2, 3, 4].map((num) => (
-                          <option key={num} value={num}>
-                            {num} {num === 1 ? 'Room' : 'Rooms'}
-                          </option>
-                        ))}
+                        {(() => {
+                          const maxRooms = selectedRoomTypeIndex !== null && accommodation.rooms?.types?.[selectedRoomTypeIndex]
+                            ? Math.min(accommodation.rooms.types[selectedRoomTypeIndex].count || 4, 4)
+                            : accommodation.rooms?.total
+                            ? Math.min(accommodation.rooms.total, 4)
+                            : 4;
+                          return Array.from({ length: maxRooms }, (_, i) => i + 1).map((num) => (
+                            <option key={num} value={String(num)}>
+                              {num} {num === 1 ? 'Room' : 'Rooms'}
+                            </option>
+                          ));
+                        })()}
                       </select>
                     </div>
                   </div>
@@ -521,11 +599,11 @@ export default function AccommodationDetailsPage() {
                             new Date(bookingDates.checkIn).getTime()) /
                             (1000 * 60 * 60 * 24)
                         )}{' '}
-                        nights × {accommodation.pricing.basePrice.toFixed(2)} {accommodation.pricing.currency}
+                        nights × {getSelectedRoomPrice().toFixed(2)} {accommodation.pricing.currency}
                       </span>
                       <span className='font-semibold'>
                         {(
-                          accommodation.pricing.basePrice *
+                          getSelectedRoomPrice() *
                           Math.ceil(
                             (new Date(bookingDates.checkOut).getTime() -
                               new Date(bookingDates.checkIn).getTime()) /
@@ -540,7 +618,7 @@ export default function AccommodationDetailsPage() {
                       <span className='font-semibold text-gray-900'>Total</span>
                       <span className='text-xl font-bold text-primary-600'>
                         {(
-                          accommodation.pricing.basePrice *
+                          getSelectedRoomPrice() *
                           Math.ceil(
                             (new Date(bookingDates.checkOut).getTime() -
                               new Date(bookingDates.checkIn).getTime()) /
