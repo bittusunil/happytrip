@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Layout, Card, Button } from '@/components';
-import { Accommodation } from '@/types';
+import { Accommodation, Flight } from '@/types';
 import { mockAccommodations } from '@/data/mockAccommodations';
+import { mockFlights } from '@/data/mockFlights';
 import {
   FiCheckCircle,
   FiCalendar,
@@ -15,6 +16,8 @@ import {
   FiMail,
   FiDownload,
   FiHome,
+  FiClock,
+  FiNavigation,
 } from 'react-icons/fi';
 
 interface Booking {
@@ -47,6 +50,7 @@ export default function BookingConfirmationPage() {
 
   const [booking, setBooking] = useState<Booking | null>(null);
   const [accommodation, setAccommodation] = useState<Accommodation | null>(null);
+  const [flight, setFlight] = useState<Flight | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -69,13 +73,23 @@ export default function BookingConfirmationPage() {
 
       if (foundBooking) {
         setBooking(foundBooking);
-        // Find accommodation - check bookingDetails for accommodationId, then referenceId
-        const accId =
-          (foundBooking.bookingDetails as any)?.accommodationId ||
-          foundBooking.referenceId;
-        const acc = mockAccommodations.find((a) => a._id === accId);
-        if (acc) {
-          setAccommodation(acc);
+        // Find accommodation or flight based on booking type
+        if (foundBooking.type === 'accommodation') {
+          const accId =
+            (foundBooking.bookingDetails as any)?.accommodationId ||
+            foundBooking.referenceId;
+          const acc = mockAccommodations.find((a) => a._id === accId);
+          if (acc) {
+            setAccommodation(acc);
+          }
+        } else if (foundBooking.type === 'flight') {
+          const flightId =
+            (foundBooking.bookingDetails as any)?.flightId ||
+            foundBooking.referenceId;
+          const fl = mockFlights.find((f) => f._id === flightId);
+          if (fl) {
+            setFlight(fl);
+          }
         }
       } else {
         // Try to load from API if user is authenticated
@@ -188,7 +202,7 @@ Booked on: ${new Date(booking.createdAt).toLocaleDateString()}
           </div>
           <h1 className='text-4xl font-bold text-gray-900 mb-2'>Booking Confirmed!</h1>
           <p className='text-lg text-gray-600'>
-            Your accommodation booking has been successfully confirmed
+            Your {booking?.type === 'flight' ? 'flight' : 'accommodation'} booking has been successfully confirmed
           </p>
           <p className='text-sm text-gray-500 mt-2'>
             Booking Reference: <span className='font-semibold text-gray-900'>{booking.id || (booking as any).bookingReference || booking.referenceId}</span>
@@ -258,70 +272,143 @@ Booked on: ${new Date(booking.createdAt).toLocaleDateString()}
                 </div>
               </div>
 
-              {/* Stay Details */}
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
-                <div className='flex items-start gap-3'>
-                  <FiCalendar className='w-5 h-5 text-primary-600 mt-1' />
-                  <div>
-                    <p className='text-sm text-gray-600 mb-1'>Check-in</p>
-                    <p className='font-semibold text-gray-900'>
-                      {booking.checkInDate
-                        ? new Date(booking.checkInDate).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })
-                        : 'N/A'}
-                    </p>
-                    {accommodation && (
-                      <p className='text-xs text-gray-500 mt-1'>
-                        Check-in time: {accommodation.policies.checkInTime}
+              {/* Stay Details - Accommodation */}
+              {booking.type === 'accommodation' && (
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+                  <div className='flex items-start gap-3'>
+                    <FiCalendar className='w-5 h-5 text-primary-600 mt-1' />
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>Check-in</p>
+                      <p className='font-semibold text-gray-900'>
+                        {booking.checkInDate
+                          ? new Date(booking.checkInDate).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })
+                          : 'N/A'}
                       </p>
-                    )}
+                      {accommodation && (
+                        <p className='text-xs text-gray-500 mt-1'>
+                          Check-in time: {accommodation.policies.checkInTime}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className='flex items-start gap-3'>
-                  <FiCalendar className='w-5 h-5 text-primary-600 mt-1' />
-                  <div>
-                    <p className='text-sm text-gray-600 mb-1'>Check-out</p>
-                    <p className='font-semibold text-gray-900'>
-                      {booking.checkOutDate
-                        ? new Date(booking.checkOutDate).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })
-                        : 'N/A'}
-                    </p>
-                    {accommodation && (
-                      <p className='text-xs text-gray-500 mt-1'>
-                        Check-out time: {accommodation.policies.checkOutTime}
+                  <div className='flex items-start gap-3'>
+                    <FiCalendar className='w-5 h-5 text-primary-600 mt-1' />
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>Check-out</p>
+                      <p className='font-semibold text-gray-900'>
+                        {booking.checkOutDate
+                          ? new Date(booking.checkOutDate).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })
+                          : 'N/A'}
                       </p>
-                    )}
+                      {accommodation && (
+                        <p className='text-xs text-gray-500 mt-1'>
+                          Check-out time: {accommodation.policies.checkOutTime}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className='flex items-start gap-3'>
+                    <FiUsers className='w-5 h-5 text-primary-600 mt-1' />
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>Guests & Rooms</p>
+                      <p className='font-semibold text-gray-900'>
+                        {booking.bookingDetails?.guests || 0} {booking.bookingDetails?.guests === 1 ? 'Guest' : 'Guests'} • {booking.bookingDetails?.rooms || 0}{' '}
+                        {booking.bookingDetails?.rooms === 1 ? 'Room' : 'Rooms'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex items-start gap-3'>
+                    <FiHome className='w-5 h-5 text-primary-600 mt-1' />
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>Duration</p>
+                      <p className='font-semibold text-gray-900'>
+                        {nights} {nights === 1 ? 'Night' : 'Nights'}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className='flex items-start gap-3'>
-                  <FiUsers className='w-5 h-5 text-primary-600 mt-1' />
-                  <div>
-                    <p className='text-sm text-gray-600 mb-1'>Guests & Rooms</p>
-                    <p className='font-semibold text-gray-900'>
-                      {booking.bookingDetails?.guests || 0} {booking.bookingDetails?.guests === 1 ? 'Guest' : 'Guests'} • {booking.bookingDetails?.rooms || 0}{' '}
-                      {booking.bookingDetails?.rooms === 1 ? 'Room' : 'Rooms'}
-                    </p>
+              )}
+
+              {/* Flight Details */}
+              {booking.type === 'flight' && flight && (
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+                  <div className='flex items-start gap-3'>
+                    <FiCalendar className='w-5 h-5 text-primary-600 mt-1' />
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>Departure</p>
+                      <p className='font-semibold text-gray-900'>
+                        {(booking.bookingDetails as any)?.departureDate
+                          ? new Date((booking.bookingDetails as any).departureDate).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })
+                          : 'N/A'}
+                      </p>
+                      <p className='text-xs text-gray-500 mt-1'>
+                        {new Date(flight.departure.time).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })} • Terminal {flight.departure.terminal || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex items-start gap-3'>
+                    <FiCalendar className='w-5 h-5 text-primary-600 mt-1' />
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>Arrival</p>
+                      <p className='font-semibold text-gray-900'>
+                        {(booking.bookingDetails as any)?.arrivalDate
+                          ? new Date((booking.bookingDetails as any).arrivalDate).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })
+                          : 'N/A'}
+                      </p>
+                      <p className='text-xs text-gray-500 mt-1'>
+                        {new Date(flight.arrival.time).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })} • Terminal {flight.arrival.terminal || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex items-start gap-3'>
+                    <FiUsers className='w-5 h-5 text-primary-600 mt-1' />
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>Passengers & Cabin</p>
+                      <p className='font-semibold text-gray-900'>
+                        {(booking.bookingDetails as any)?.passengers || 0}{' '}
+                        {(booking.bookingDetails as any)?.passengers === 1 ? 'Passenger' : 'Passengers'} •{' '}
+                        {((booking.bookingDetails as any)?.cabinClass || 'economy').charAt(0).toUpperCase() +
+                          ((booking.bookingDetails as any)?.cabinClass || 'economy').slice(1)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex items-start gap-3'>
+                    <FiClock className='w-5 h-5 text-primary-600 mt-1' />
+                    <div>
+                      <p className='text-sm text-gray-600 mb-1'>Duration</p>
+                      <p className='font-semibold text-gray-900'>
+                        {Math.floor(flight.duration / 60)}h {flight.duration % 60}m
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className='flex items-start gap-3'>
-                  <FiHome className='w-5 h-5 text-primary-600 mt-1' />
-                  <div>
-                    <p className='text-sm text-gray-600 mb-1'>Duration</p>
-                    <p className='font-semibold text-gray-900'>
-                      {nights} {nights === 1 ? 'Night' : 'Nights'}
-                    </p>
-                  </div>
-                </div>
-              </div>
+              )}
 
               {/* Special Requests */}
               {booking.notes && (

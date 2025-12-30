@@ -10,11 +10,12 @@ import { useSearchStore } from '@/store/searchStore';
 import { apiService } from '@/services/api';
 import { Flight, PaginatedResponse } from '@/types';
 import { FiFilter, FiAlertCircle } from 'react-icons/fi';
+import { mockFlights } from '@/data/mockFlights';
 
 export default function FlightsPage() {
   const searchParams = useSearchParams();
   const { flightSearchParams, setFlightSearchParams, addRecentSearch } = useSearchStore();
-  const [flights, setFlights] = useState<Flight[]>([]);
+  const [flights, setFlights] = useState<Flight[]>(mockFlights);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -42,12 +43,43 @@ export default function FlightsPage() {
     }
   }, [searchParams, setFlightSearchParams]);
 
+  // Load mock data on mount if no search params
+  useEffect(() => {
+    if (!flightSearchParams.departure || !flightSearchParams.arrival || !flightSearchParams.departureDate) {
+      // Apply filters to mock data
+      applyFiltersToMockData();
+    }
+  }, [filters]);
+
   // Fetch flights
   useEffect(() => {
     if (flightSearchParams.departure && flightSearchParams.arrival && flightSearchParams.departureDate) {
       fetchFlights();
+    } else {
+      // Show mock data when no search is performed
+      applyFiltersToMockData();
     }
   }, [page, flightSearchParams]);
+
+  const applyFiltersToMockData = () => {
+    let filtered = [...mockFlights];
+
+    // Apply filters
+    if (filters.maxPrice < 10000) {
+      filtered = filtered.filter((f) => f.pricing.economy <= filters.maxPrice);
+    }
+
+    if (filters.airline) {
+      filtered = filtered.filter((f) => f.airline.toLowerCase() === filters.airline.toLowerCase());
+    }
+
+    if (filters.stops !== 'all') {
+      const stopsCount = parseInt(filters.stops);
+      filtered = filtered.filter((f) => f.stops === stopsCount);
+    }
+
+    setFlights(filtered);
+  };
 
   const fetchFlights = async () => {
     setIsLoading(true);
@@ -116,7 +148,7 @@ export default function FlightsPage() {
         </div>
 
         {/* Results Section */}
-        {flightSearchParams.departure && flightSearchParams.arrival ? (
+        <div>
           <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
             {/* Filters Sidebar */}
             <div className='lg:col-span-1'>
@@ -220,7 +252,9 @@ export default function FlightsPage() {
                   {/* Results Header */}
                   <div className='flex items-center justify-between mb-6'>
                     <p className='text-gray-600'>
-                      Showing {flights.length} flight{flights.length !== 1 ? 's' : ''}
+                      {flightSearchParams.departure && flightSearchParams.arrival
+                        ? `Showing ${flights.length} flight${flights.length !== 1 ? 's' : ''}`
+                        : `Showing ${flights.length} featured flight${flights.length !== 1 ? 's' : ''}`}
                     </p>
                     <select
                       defaultValue='price'
@@ -272,15 +306,7 @@ export default function FlightsPage() {
               )}
             </div>
           </div>
-        ) : (
-          <Card className='text-center py-12'>
-            <FiAlertCircle className='w-12 h-12 text-gray-400 mx-auto mb-4' />
-            <h3 className='text-lg font-semibold text-gray-900 mb-2'>Start searching</h3>
-            <p className='text-gray-600'>
-              Enter your travel details above to find the best flights
-            </p>
-          </Card>
-        )}
+        </div>
       </div>
     </Layout>
   );

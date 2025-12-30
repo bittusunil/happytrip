@@ -5,9 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Layout, Card, Button, Input } from '@/components';
-import { Accommodation } from '@/types';
+import { Accommodation, Flight } from '@/types';
 import { apiService } from '@/services/api';
 import { mockAccommodations } from '@/data/mockAccommodations';
+import { mockFlights } from '@/data/mockFlights';
 import {
   FiArrowLeft,
   FiUser,
@@ -43,15 +44,21 @@ export default function NewBookingPage() {
   const searchParams = useSearchParams();
 
   // Get booking params from URL
-  const accommodationId = searchParams.get('referenceId');
+  const bookingType = searchParams.get('type') || 'accommodation';
+  const referenceId = searchParams.get('referenceId');
   const checkIn = searchParams.get('checkIn');
   const checkOut = searchParams.get('checkOut');
+  const departureDate = searchParams.get('departureDate');
+  const arrivalDate = searchParams.get('arrivalDate');
   const guests = parseInt(searchParams.get('guests') || '1');
   const rooms = parseInt(searchParams.get('rooms') || '1');
+  const passengers = parseInt(searchParams.get('passengers') || '1');
+  const cabinClass = searchParams.get('cabinClass') || 'economy';
   const totalPrice = parseFloat(searchParams.get('totalPrice') || '0');
   const currency = searchParams.get('currency') || 'EUR';
 
   const [accommodation, setAccommodation] = useState<Accommodation | null>(null);
+  const [flight, setFlight] = useState<Flight | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [guestDetails, setGuestDetails] = useState<GuestDetails>({
@@ -73,35 +80,74 @@ export default function NewBookingPage() {
   const [specialRequests, setSpecialRequests] = useState('');
 
   useEffect(() => {
-    if (!accommodationId || !checkIn || !checkOut) {
+    if (!referenceId) {
       toast.error('Missing booking information');
-      router.push('/accommodations');
+      router.push(bookingType === 'flight' ? '/flights' : '/accommodations');
       return;
     }
 
-    fetchAccommodation();
-  }, [accommodationId]);
+    if (bookingType === 'flight') {
+      if (!departureDate || !arrivalDate) {
+        toast.error('Missing flight information');
+        router.push('/flights');
+        return;
+      }
+      fetchFlight();
+    } else {
+      if (!checkIn || !checkOut) {
+        toast.error('Missing accommodation information');
+        router.push('/accommodations');
+        return;
+      }
+      fetchAccommodation();
+    }
+  }, [referenceId, bookingType]);
 
   const fetchAccommodation = async () => {
     setIsLoading(true);
     try {
-      if (accommodationId) {
+      if (referenceId) {
         try {
-          const response = await apiService.getAccommodationById(accommodationId);
+          const response = await apiService.getAccommodationById(referenceId);
           if (response.data) {
             setAccommodation(response.data);
           } else {
-            const mockAccommodation = mockAccommodations.find((a) => a._id === accommodationId);
+            const mockAccommodation = mockAccommodations.find((a) => a._id === referenceId);
             if (mockAccommodation) setAccommodation(mockAccommodation);
           }
         } catch (error) {
-          const mockAccommodation = mockAccommodations.find((a) => a._id === accommodationId);
+          const mockAccommodation = mockAccommodations.find((a) => a._id === referenceId);
           if (mockAccommodation) setAccommodation(mockAccommodation);
         }
       }
     } catch (error) {
       console.error('Error fetching accommodation:', error);
       toast.error('Failed to load accommodation details');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchFlight = async () => {
+    setIsLoading(true);
+    try {
+      if (referenceId) {
+        try {
+          const response = await apiService.getFlightById(referenceId);
+          if (response.data) {
+            setFlight(response.data);
+          } else {
+            const mockFlight = mockFlights.find((f) => f._id === referenceId);
+            if (mockFlight) setFlight(mockFlight);
+          }
+        } catch (error) {
+          const mockFlight = mockFlights.find((f) => f._id === referenceId);
+          if (mockFlight) setFlight(mockFlight);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching flight:', error);
+      toast.error('Failed to load flight details');
     } finally {
       setIsLoading(false);
     }
@@ -134,47 +180,83 @@ export default function NewBookingPage() {
       // Generate booking reference
       const bookingReference = `HT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-      // Create booking data
-      const bookingData = {
-        type: 'accommodation',
-        referenceId: accommodationId,
-        totalPrice,
-        currency,
-        checkInDate: checkIn,
-        checkOutDate: checkOut,
-        bookingDetails: {
-          guests,
-          rooms,
-          guestDetails,
-          paymentDetails: {
-            // Don't store full card details in real app - just last 4 digits
-            cardLast4: paymentDetails.cardNumber.slice(-4),
-            cardholderName: paymentDetails.cardholderName,
-          },
-          specialRequests,
-        },
-        notes: specialRequests,
-      };
+      // Create booking data based on type
+      const bookingData = bookingType === 'flight'
+        ? {
+            type: 'flight',
+            referenceId: referenceId,
+            totalPrice,
+            currency,
+            bookingDetails: {
+              passengers,
+              cabinClass,
+              departureDate,
+              arrivalDate,
+              guestDetails,
+              paymentDetails: {
+                cardLast4: paymentDetails.cardNumber.slice(-4),
+                cardholderName: paymentDetails.cardholderName,
+              },
+              specialRequests,
+            },
+            notes: specialRequests,
+          }
+        : {
+            type: 'accommodation',
+            referenceId: referenceId,
+            totalPrice,
+            currency,
+            checkInDate: checkIn,
+            checkOutDate: checkOut,
+            bookingDetails: {
+              guests,
+              rooms,
+              guestDetails,
+              paymentDetails: {
+                cardLast4: paymentDetails.cardNumber.slice(-4),
+                cardholderName: paymentDetails.cardholderName,
+              },
+              specialRequests,
+            },
+            notes: specialRequests,
+          };
 
       // Store booking locally (in a real app, this would go to the backend)
-      const booking = {
-        id: bookingReference,
-        referenceId: accommodationId, // Store accommodation ID for lookup
-        bookingReference: bookingReference, // Store booking reference separately
-        type: 'accommodation',
-        status: 'confirmed',
-        totalPrice,
-        currency,
-        checkInDate: checkIn,
-        checkOutDate: checkOut,
-        bookingDetails: {
-          ...bookingData.bookingDetails,
-          accommodationId: accommodationId, // Also store in booking details
-        },
-        notes: specialRequests,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      const booking = bookingType === 'flight'
+        ? {
+            id: bookingReference,
+            referenceId: referenceId, // Store flight ID for lookup
+            bookingReference: bookingReference,
+            type: 'flight',
+            status: 'confirmed',
+            totalPrice,
+            currency,
+            bookingDetails: {
+              ...bookingData.bookingDetails,
+              flightId: referenceId,
+            },
+            notes: specialRequests,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }
+        : {
+            id: bookingReference,
+            referenceId: referenceId, // Store accommodation ID for lookup
+            bookingReference: bookingReference,
+            type: 'accommodation',
+            status: 'confirmed',
+            totalPrice,
+            currency,
+            checkInDate: checkIn,
+            checkOutDate: checkOut,
+            bookingDetails: {
+              ...bookingData.bookingDetails,
+              accommodationId: referenceId,
+            },
+            notes: specialRequests,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
 
       // Store in localStorage for demo purposes
       const existingBookings = JSON.parse(localStorage.getItem('guestBookings') || '[]');
@@ -185,17 +267,8 @@ export default function NewBookingPage() {
       try {
         const { useAuthStore } = await import('@/store/authStore');
         const authStore = useAuthStore.getState();
-        if (authStore.isAuthenticated && accommodationId) {
-          await apiService.createBooking({
-            type: 'accommodation',
-            referenceId: accommodationId,
-            totalPrice,
-            currency,
-            checkInDate: checkIn,
-            checkOutDate: checkOut,
-            bookingDetails: bookingData.bookingDetails,
-            notes: specialRequests,
-          });
+        if (authStore.isAuthenticated && referenceId) {
+          await apiService.createBooking(bookingData as any);
         }
       } catch (error) {
         // Continue with local storage booking if API fails
@@ -247,7 +320,7 @@ export default function NewBookingPage() {
     );
   }
 
-  if (!accommodation) {
+  if (bookingType === 'accommodation' && !accommodation) {
     return (
       <Layout>
         <div className='container-responsive py-12'>
@@ -262,6 +335,21 @@ export default function NewBookingPage() {
     );
   }
 
+  if (bookingType === 'flight' && !flight) {
+    return (
+      <Layout>
+        <div className='container-responsive py-12'>
+          <Card className='text-center py-12'>
+            <h2 className='text-2xl font-bold text-gray-900 mb-4'>Flight not found</h2>
+            <Link href='/flights'>
+              <Button>Back to Flights</Button>
+            </Link>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
   const nights = calculateNights();
 
   return (
@@ -269,11 +357,15 @@ export default function NewBookingPage() {
       <div className='container-responsive py-8'>
         {/* Back Button */}
         <Link
-          href={`/accommodations/${accommodationId}`}
+          href={
+            bookingType === 'flight'
+              ? `/flights/${referenceId}`
+              : `/accommodations/${referenceId}`
+          }
           className='inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6'
         >
           <FiArrowLeft className='w-4 h-4' />
-          Back to Accommodation Details
+          Back to {bookingType === 'flight' ? 'Flight' : 'Accommodation'} Details
         </Link>
 
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
@@ -467,52 +559,102 @@ export default function NewBookingPage() {
                 <h2 className='text-xl font-bold text-gray-900 mb-6'>Booking Summary</h2>
 
                 {/* Accommodation Info */}
-                <div className='mb-6 pb-6 border-b border-gray-200'>
-                  <h3 className='font-semibold text-gray-900 mb-2'>{accommodation.name}</h3>
-                  <p className='text-sm text-gray-600 mb-4'>
-                    {accommodation.location.city}, {accommodation.location.country}
-                  </p>
-                  <div className='space-y-2 text-sm'>
-                    <div className='flex items-center gap-2 text-gray-700'>
-                      <FiCalendar className='w-4 h-4 text-gray-400' />
-                      <span>
-                        Check-in: {checkIn ? new Date(checkIn).toLocaleDateString() : 'N/A'}
-                      </span>
+                {bookingType === 'accommodation' && accommodation && (
+                  <>
+                    <div className='mb-6 pb-6 border-b border-gray-200'>
+                      <h3 className='font-semibold text-gray-900 mb-2'>{accommodation.name}</h3>
+                      <p className='text-sm text-gray-600 mb-4'>
+                        {accommodation.location.city}, {accommodation.location.country}
+                      </p>
+                      <div className='space-y-2 text-sm'>
+                        <div className='flex items-center gap-2 text-gray-700'>
+                          <FiCalendar className='w-4 h-4 text-gray-400' />
+                          <span>
+                            Check-in: {checkIn ? new Date(checkIn).toLocaleDateString() : 'N/A'}
+                          </span>
+                        </div>
+                        <div className='flex items-center gap-2 text-gray-700'>
+                          <FiCalendar className='w-4 h-4 text-gray-400' />
+                          <span>
+                            Check-out: {checkOut ? new Date(checkOut).toLocaleDateString() : 'N/A'}
+                          </span>
+                        </div>
+                        <div className='flex items-center gap-2 text-gray-700'>
+                          <FiUsers className='w-4 h-4 text-gray-400' />
+                          <span>
+                            {guests} {guests === 1 ? 'Guest' : 'Guests'} • {rooms}{' '}
+                            {rooms === 1 ? 'Room' : 'Rooms'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className='flex items-center gap-2 text-gray-700'>
-                      <FiCalendar className='w-4 h-4 text-gray-400' />
-                      <span>
-                        Check-out: {checkOut ? new Date(checkOut).toLocaleDateString() : 'N/A'}
-                      </span>
-                    </div>
-                    <div className='flex items-center gap-2 text-gray-700'>
-                      <FiUsers className='w-4 h-4 text-gray-400' />
-                      <span>
-                        {guests} {guests === 1 ? 'Guest' : 'Guests'} • {rooms}{' '}
-                        {rooms === 1 ? 'Room' : 'Rooms'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Price Breakdown */}
-                <div className='space-y-3 mb-6'>
-                  <div className='flex justify-between text-sm'>
-                    <span className='text-gray-600'>
-                      {nights} {nights === 1 ? 'night' : 'nights'} × {rooms}{' '}
-                      {rooms === 1 ? 'room' : 'rooms'}
-                    </span>
-                    <span className='text-gray-900'>
-                      {(totalPrice / rooms / nights) * rooms * nights} {currency}
-                    </span>
-                  </div>
-                  <div className='flex justify-between text-sm'>
-                    <span className='text-gray-600'>Price per night</span>
-                    <span className='text-gray-900'>
-                      {(totalPrice / rooms / nights).toFixed(2)} {currency}
-                    </span>
-                  </div>
-                </div>
+                    {/* Price Breakdown */}
+                    <div className='space-y-3 mb-6'>
+                      <div className='flex justify-between text-sm'>
+                        <span className='text-gray-600'>
+                          {nights} {nights === 1 ? 'night' : 'nights'} × {rooms}{' '}
+                          {rooms === 1 ? 'room' : 'rooms'}
+                        </span>
+                        <span className='text-gray-900'>
+                          {(totalPrice / rooms / nights) * rooms * nights} {currency}
+                        </span>
+                      </div>
+                      <div className='flex justify-between text-sm'>
+                        <span className='text-gray-600'>Price per night</span>
+                        <span className='text-gray-900'>
+                          {(totalPrice / rooms / nights).toFixed(2)} {currency}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Flight Info */}
+                {bookingType === 'flight' && flight && (
+                  <>
+                    <div className='mb-6 pb-6 border-b border-gray-200'>
+                      <h3 className='font-semibold text-gray-900 mb-2'>
+                        {flight.airline} {flight.flightNumber}
+                      </h3>
+                      <p className='text-sm text-gray-600 mb-4'>
+                        {flight.departure.code} → {flight.arrival.code}
+                      </p>
+                      <div className='space-y-2 text-sm'>
+                        <div className='flex items-center gap-2 text-gray-700'>
+                          <FiCalendar className='w-4 h-4 text-gray-400' />
+                          <span>
+                            Departure: {departureDate ? new Date(departureDate).toLocaleDateString() : 'N/A'}
+                          </span>
+                        </div>
+                        <div className='flex items-center gap-2 text-gray-700'>
+                          <FiCalendar className='w-4 h-4 text-gray-400' />
+                          <span>
+                            Arrival: {arrivalDate ? new Date(arrivalDate).toLocaleDateString() : 'N/A'}
+                          </span>
+                        </div>
+                        <div className='flex items-center gap-2 text-gray-700'>
+                          <FiUsers className='w-4 h-4 text-gray-400' />
+                          <span>
+                            {passengers} {passengers === 1 ? 'Passenger' : 'Passengers'} • {cabinClass.charAt(0).toUpperCase() + cabinClass.slice(1)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Price Breakdown */}
+                    <div className='space-y-3 mb-6'>
+                      <div className='flex justify-between text-sm'>
+                        <span className='text-gray-600'>
+                          {passengers} {passengers === 1 ? 'passenger' : 'passengers'} × {flight.pricing[cabinClass as keyof typeof flight.pricing].toFixed(2)} {currency}
+                        </span>
+                        <span className='text-gray-900'>
+                          {totalPrice.toFixed(2)} {currency}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {/* Total */}
                 <div className='pt-6 border-t border-gray-200'>
