@@ -6,43 +6,43 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className='bg-gray-900 text-gray-300'>
-      <div className='container-responsive py-12'>
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-8 mb-8'>
+    <footer className='bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 text-gray-300 border-t border-gray-800'>
+      <div className='container-responsive py-16'>
+        <div className='grid grid-cols-1 md:grid-cols-4 gap-12 mb-12'>
           {/* Company Info */}
           <div>
-            <div className='flex items-center gap-2 mb-4'>
-              <div className='w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center'>
+            <div className='flex items-center gap-3 mb-6'>
+              <div className='w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20'>
                 <span className='text-white font-bold text-sm'>HT</span>
               </div>
-              <span className='text-lg font-bold text-white'>HappyTrip</span>
+              <span className='text-xl font-bold text-white'>HappyTrip</span>
             </div>
-            <p className='text-sm text-gray-400'>
+            <p className='text-sm text-gray-400 leading-relaxed'>
               Your trusted travel companion for flights and accommodations across Europe.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className='text-white font-semibold mb-4'>Quick Links</h3>
-            <ul className='space-y-2 text-sm'>
+            <h3 className='text-white font-bold mb-6 text-lg'>Quick Links</h3>
+            <ul className='space-y-3 text-sm'>
               <li>
-                <Link href='/flights' className='hover:text-primary-400 transition'>
+                <Link href='/flights' className='text-gray-400 hover:text-primary-400 transition-colors duration-200 inline-block'>
                   Flights
                 </Link>
               </li>
               <li>
-                <Link href='/accommodations' className='hover:text-primary-400 transition'>
+                <Link href='/accommodations' className='text-gray-400 hover:text-primary-400 transition-colors duration-200 inline-block'>
                   Accommodations
                 </Link>
               </li>
               <li>
-                <Link href='/about' className='hover:text-primary-400 transition'>
+                <Link href='/about' className='text-gray-400 hover:text-primary-400 transition-colors duration-200 inline-block'>
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href='/blog' className='hover:text-primary-400 transition'>
+                <Link href='/blog' className='text-gray-400 hover:text-primary-400 transition-colors duration-200 inline-block'>
                   Blog
                 </Link>
               </li>
@@ -51,25 +51,25 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className='text-white font-semibold mb-4'>Support</h3>
-            <ul className='space-y-2 text-sm'>
+            <h3 className='text-white font-bold mb-6 text-lg'>Support</h3>
+            <ul className='space-y-3 text-sm'>
               <li>
-                <Link href='/help' className='hover:text-primary-400 transition'>
+                <Link href='/help' className='text-gray-400 hover:text-primary-400 transition-colors duration-200 inline-block'>
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link href='/contact' className='hover:text-primary-400 transition'>
+                <Link href='/contact' className='text-gray-400 hover:text-primary-400 transition-colors duration-200 inline-block'>
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href='/privacy' className='hover:text-primary-400 transition'>
+                <Link href='/privacy' className='text-gray-400 hover:text-primary-400 transition-colors duration-200 inline-block'>
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href='/terms' className='hover:text-primary-400 transition'>
+                <Link href='/terms' className='text-gray-400 hover:text-primary-400 transition-colors duration-200 inline-block'>
                   Terms of Service
                 </Link>
               </li>
@@ -104,19 +104,19 @@ export default function Footer() {
         <hr className='border-gray-800 my-8' />
 
         {/* Bottom */}
-        <div className='flex flex-col md:flex-row items-center justify-between text-sm text-gray-400'>
-          <p>&copy; {currentYear} HappyTrip. All rights reserved.</p>
+        <div className='flex flex-col md:flex-row items-center justify-between text-sm'>
+          <p className='text-gray-400'>&copy; {currentYear} HappyTrip. All rights reserved.</p>
           <div className='flex gap-6 mt-4 md:mt-0'>
-            <a href='#' className='hover:text-primary-400 transition'>
+            <a href='#' className='text-gray-400 hover:text-primary-400 transition-colors duration-200'>
               Facebook
             </a>
-            <a href='#' className='hover:text-primary-400 transition'>
+            <a href='#' className='text-gray-400 hover:text-primary-400 transition-colors duration-200'>
               Twitter
             </a>
-            <a href='#' className='hover:text-primary-400 transition'>
+            <a href='#' className='text-gray-400 hover:text-primary-400 transition-colors duration-200'>
               Instagram
             </a>
-            <a href='#' className='hover:text-primary-400 transition'>
+            <a href='#' className='text-gray-400 hover:text-primary-400 transition-colors duration-200'>
               LinkedIn
             </a>
           </div>

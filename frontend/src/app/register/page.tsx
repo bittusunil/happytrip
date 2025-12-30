@@ -210,10 +210,10 @@ export default function RegisterPage() {
 
             {/* Social Signup */}
             <div className='grid grid-cols-2 gap-4'>
-              <Button variant='outline' disabled>
+              <Button variant='outline' disabled className='!text-gray-500'>
                 Google
               </Button>
-              <Button variant='outline' disabled>
+              <Button variant='outline' disabled className='!text-gray-500'>
                 Facebook
               </Button>
             </div>

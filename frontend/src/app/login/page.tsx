@@ -54,17 +54,17 @@ export default function LoginPage() {
 
   return (
     <Layout>
-      <div className='min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center py-12 px-4'>
+      <div className='min-h-screen bg-gradient-to-br from-gray-50 via-white to-primary-50/30 flex items-center justify-center py-12 px-4'>
         <div className='w-full max-w-md'>
           {/* Card */}
-          <div className='bg-white rounded-lg shadow-lg p-8'>
+          <div className='bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100 p-8 md:p-10'>
             {/* Header */}
             <div className='text-center mb-8'>
-              <div className='w-12 h-12 bg-primary-500 rounded-lg flex items-center justify-center mx-auto mb-4'>
-                <span className='text-white font-bold text-lg'>HT</span>
+              <div className='w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary-500/20'>
+                <span className='text-white font-bold text-xl'>HT</span>
               </div>
-              <h1 className='text-2xl font-bold text-gray-900'>Welcome Back</h1>
-              <p className='text-gray-600 text-sm mt-2'>Sign in to your HappyTrip account</p>
+              <h1 className='text-3xl font-bold text-gray-900 mb-2'>Welcome Back</h1>
+              <p className='text-gray-600'>Sign in to your HappyTrip account</p>
             </div>
 
             {/* Form */}
@@ -103,11 +103,11 @@ export default function LoginPage() {
 
               {/* Remember Me & Forgot Password */}
               <div className='flex items-center justify-between text-sm'>
-                <label className='flex items-center gap-2'>
-                  <input type='checkbox' className='w-4 h-4 rounded border-gray-300' />
-                  <span className='text-gray-700'>Remember me</span>
+                <label className='flex items-center gap-2 cursor-pointer group'>
+                  <input type='checkbox' className='w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 focus:ring-2 cursor-pointer' />
+                  <span className='text-gray-700 group-hover:text-gray-900 transition-colors'>Remember me</span>
                 </label>
-                <Link href='/forgot-password' className='text-primary-500 hover:text-primary-600'>
+                <Link href='/forgot-password' className='text-primary-600 hover:text-primary-700 font-medium transition-colors'>
                   Forgot password?
                 </Link>
               </div>
@@ -118,35 +118,36 @@ export default function LoginPage() {
                 fullWidth
                 isLoading={isSubmitting || isLoading}
                 disabled={isSubmitting || isLoading}
+                className='mt-6 shadow-lg hover:shadow-xl transition-all duration-300'
               >
                 Sign In
               </Button>
             </form>
 
             {/* Divider */}
-            <div className='relative my-6'>
+            <div className='relative my-8'>
               <div className='absolute inset-0 flex items-center'>
-                <div className='w-full border-t border-gray-300' />
+                <div className='w-full border-t border-gray-200' />
               </div>
               <div className='relative flex justify-center text-sm'>
-                <span className='px-2 bg-white text-gray-500'>Or continue with</span>
+                <span className='px-4 bg-white text-gray-500'>Or continue with</span>
               </div>
             </div>
 
             {/* Social Login */}
-            <div className='grid grid-cols-2 gap-4'>
-              <Button variant='outline' disabled>
+            <div className='grid grid-cols-2 gap-3'>
+              <Button variant='outline' disabled className='!border-gray-200 hover:!bg-gray-50 !text-gray-500'>
                 Google
               </Button>
-              <Button variant='outline' disabled>
+              <Button variant='outline' disabled className='!border-gray-200 hover:!bg-gray-50 !text-gray-500'>
                 Facebook
               </Button>
             </div>
 
             {/* Sign Up Link */}
-            <p className='text-center text-sm text-gray-600 mt-6'>
+            <p className='text-center text-sm text-gray-600 mt-8'>
               Don't have an account?{' '}
-              <Link href='/register' className='text-primary-500 hover:text-primary-600 font-medium'>
+              <Link href='/register' className='text-primary-600 hover:text-primary-700 font-semibold transition-colors'>
                 Sign up
               </Link>
             </p>
@@ -155,11 +156,11 @@ export default function LoginPage() {
           {/* Footer Text */}
           <p className='text-center text-xs text-gray-500 mt-6'>
             By signing in, you agree to our{' '}
-            <Link href='/terms' className='text-primary-500 hover:text-primary-600'>
+            <Link href='/terms' className='text-primary-600 hover:text-primary-700 transition-colors'>
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link href='/privacy' className='text-primary-500 hover:text-primary-600'>
+            <Link href='/privacy' className='text-primary-600 hover:text-primary-700 transition-colors'>
               Privacy Policy
             </Link>
           </p>
