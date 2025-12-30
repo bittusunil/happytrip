@@ -55,16 +55,10 @@ export default function Header() {
                 </button>
                 <div className='absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200/50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden'>
                   <Link
-                    href='/profile'
+                    href='/account'
                     className='block px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-150'
                   >
-                    Profile
-                  </Link>
-                  <Link
-                    href='/settings'
-                    className='block px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-150'
-                  >
-                    Settings
+                    My Account
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -119,11 +113,8 @@ export default function Header() {
                 <Link href='/bookings' className='text-gray-700 hover:text-primary-500 transition'>
                   My Bookings
                 </Link>
-                <Link href='/profile' className='text-gray-700 hover:text-primary-500 transition'>
-                  Profile
-                </Link>
-                <Link href='/settings' className='text-gray-700 hover:text-primary-500 transition'>
-                  Settings
+                <Link href='/account' className='text-gray-700 hover:text-primary-500 transition'>
+                  My Account
                 </Link>
                 <Button
                   variant='outline'
